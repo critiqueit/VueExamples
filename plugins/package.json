@@ -1,7 +1,7 @@
 {
-  "name": "vue-mixins",
+  "name": "vue-plugins",
   "version": "0.0.1",
-  "description": "Vue example application on mixins",
+  "description": "Vue example application on plugins",
   "scripts": {
     "build-dev": "WEBPACK_ENV=dev webpack --progress --colors --watch",
     "build-prod": "WEBPACK_ENV=production webpack"
