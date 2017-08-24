@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 4);
+/******/ 	return __webpack_require__(__webpack_require__.s = 8);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -73,18 +73,32 @@
 "use strict";
 
 
-var _vue = __webpack_require__(2);
+var _vue = __webpack_require__(6);
 
 var _vue2 = _interopRequireDefault(_vue);
 
+var _app = __webpack_require__(11);
+
+var _app2 = _interopRequireDefault(_app);
+
+var _generalHelpers = __webpack_require__(15);
+
+var _generalHelpers2 = _interopRequireDefault(_generalHelpers);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+_vue2.default.use(_generalHelpers2.default);
+
 new _vue2.default({
-	el: '#vue-app'
+	el: '#vue-app',
+	components: {
+		app: _app2.default
+	}
 });
 
 /***/ }),
-/* 1 */
+/* 1 */,
+/* 2 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -274,7 +288,106 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 2 */
+/* 3 */,
+/* 4 */
+/***/ (function(module, exports) {
+
+/* globals __VUE_SSR_CONTEXT__ */
+
+// this module is a runtime utility for cleaner component module output and will
+// be included in the final webpack user bundle
+
+module.exports = function normalizeComponent (
+  rawScriptExports,
+  compiledTemplate,
+  injectStyles,
+  scopeId,
+  moduleIdentifier /* server only */
+) {
+  var esModule
+  var scriptExports = rawScriptExports = rawScriptExports || {}
+
+  // ES6 modules interop
+  var type = typeof rawScriptExports.default
+  if (type === 'object' || type === 'function') {
+    esModule = rawScriptExports
+    scriptExports = rawScriptExports.default
+  }
+
+  // Vue.extend constructor export interop
+  var options = typeof scriptExports === 'function'
+    ? scriptExports.options
+    : scriptExports
+
+  // render functions
+  if (compiledTemplate) {
+    options.render = compiledTemplate.render
+    options.staticRenderFns = compiledTemplate.staticRenderFns
+  }
+
+  // scopedId
+  if (scopeId) {
+    options._scopeId = scopeId
+  }
+
+  var hook
+  if (moduleIdentifier) { // server build
+    hook = function (context) {
+      // 2.3 injection
+      context =
+        context || // cached call
+        (this.$vnode && this.$vnode.ssrContext) || // stateful
+        (this.parent && this.parent.$vnode && this.parent.$vnode.ssrContext) // functional
+      // 2.2 with runInNewContext: true
+      if (!context && typeof __VUE_SSR_CONTEXT__ !== 'undefined') {
+        context = __VUE_SSR_CONTEXT__
+      }
+      // inject component styles
+      if (injectStyles) {
+        injectStyles.call(this, context)
+      }
+      // register component module identifier for async chunk inferrence
+      if (context && context._registeredComponents) {
+        context._registeredComponents.add(moduleIdentifier)
+      }
+    }
+    // used by ssr in case component is cached and beforeCreate
+    // never gets called
+    options._ssrRegister = hook
+  } else if (injectStyles) {
+    hook = injectStyles
+  }
+
+  if (hook) {
+    var functional = options.functional
+    var existing = functional
+      ? options.render
+      : options.beforeCreate
+    if (!functional) {
+      // inject component registration as beforeCreate hook
+      options.beforeCreate = existing
+        ? [].concat(existing, hook)
+        : [hook]
+    } else {
+      // register for functioal component in vue file
+      options.render = function renderWithStyleInjection (h, context) {
+        hook.call(context)
+        return existing(h, context)
+      }
+    }
+  }
+
+  return {
+    esModule: esModule,
+    exports: scriptExports,
+    options: options
+  }
+}
+
+
+/***/ }),
+/* 5 */,
+/* 6 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -9969,10 +10082,10 @@ Vue$3.compile = compileToFunctions;
 
 /* harmony default export */ __webpack_exports__["default"] = (Vue$3);
 
-/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(1), __webpack_require__(3)))
+/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(2), __webpack_require__(7)))
 
 /***/ }),
-/* 3 */
+/* 7 */
 /***/ (function(module, exports) {
 
 var g;
@@ -9999,11 +10112,382 @@ module.exports = g;
 
 
 /***/ }),
-/* 4 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__(0);
 
+
+/***/ }),
+/* 9 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__api_pizza_api__ = __webpack_require__(16);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__api_pizza_api___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__api_pizza_api__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__components_select_toppings_vue__ = __webpack_require__(12);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+
+
+/* harmony default export */ __webpack_exports__["a"] = ({
+	data: function () {
+		return {
+			pizza: {
+				type: '',
+				toppings: []
+			},
+			pizzaTypes: [],
+			selectedType: '',
+			selectedToppings: []
+		};
+	},
+	methods: {
+		addTopping: function (topping) {
+			this.selectedToppings.push(topping);
+		},
+		removeTopping: function (topping) {
+			this.selectedToppings.splice(this.selectedToppings.indexOf(topping), 1);
+		}
+	},
+	watch: {
+		selectedType: function () {
+			this.pizza.type = this.selectedType;
+		},
+		selectedToppings: function () {
+			this.pizza.toppings = this.selectedToppings;
+		}
+	},
+	mounted: function () {
+		this.pizzaTypes = __WEBPACK_IMPORTED_MODULE_0__api_pizza_api___default.a.getPizzas();
+	},
+	components: {
+		toppings: __WEBPACK_IMPORTED_MODULE_1__components_select_toppings_vue__["a" /* default */]
+	}
+});
+
+/***/ }),
+/* 10 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__api_pizza_api__ = __webpack_require__(16);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__api_pizza_api___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__api_pizza_api__);
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+
+/* harmony default export */ __webpack_exports__["a"] = ({
+    data: function () {
+        return {
+            choices: [],
+            selectedToppings: []
+        };
+    },
+    watch: {
+        selectedToppings: function (newValue, oldValue) {
+            let values = this.$helpers.arrayDifference(newValue, oldValue);
+
+            if (newValue.length > oldValue.length) {
+                values.forEach(value => {
+                    this.$emit('addTopping', value);
+                });
+
+                return;
+            }
+
+            values.forEach(value => {
+                this.$emit('removeTopping', value);
+            });
+        }
+    },
+    mounted: function () {
+        this.choices = __WEBPACK_IMPORTED_MODULE_0__api_pizza_api___default.a.getToppings();
+    }
+});
+
+/***/ }),
+/* 11 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_app_vue__ = __webpack_require__(9);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_82e7f92e_hasScoped_false_node_modules_vue_loader_lib_selector_type_template_index_0_app_vue__ = __webpack_require__(14);
+var disposed = false
+var normalizeComponent = __webpack_require__(4)
+/* script */
+
+/* template */
+
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_app_vue__["a" /* default */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_82e7f92e_hasScoped_false_node_modules_vue_loader_lib_selector_type_template_index_0_app_vue__["a" /* default */],
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "src/app.vue"
+if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key.substr(0, 2) !== "__"})) {console.error("named exports are not supported in *.vue files.")}
+if (Component.options.functional) {console.error("[vue-loader] app.vue: functional components are not supported with templates, they should use render functions.")}
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-82e7f92e", Component.options)
+  } else {
+    hotAPI.reload("data-v-82e7f92e", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+/* harmony default export */ __webpack_exports__["default"] = (Component.exports);
+
+
+/***/ }),
+/* 12 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_select_toppings_vue__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_00977da8_hasScoped_false_node_modules_vue_loader_lib_selector_type_template_index_0_select_toppings_vue__ = __webpack_require__(13);
+var disposed = false
+var normalizeComponent = __webpack_require__(4)
+/* script */
+
+/* template */
+
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_select_toppings_vue__["a" /* default */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_00977da8_hasScoped_false_node_modules_vue_loader_lib_selector_type_template_index_0_select_toppings_vue__["a" /* default */],
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "src/components/select-toppings.vue"
+if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key.substr(0, 2) !== "__"})) {console.error("named exports are not supported in *.vue files.")}
+if (Component.options.functional) {console.error("[vue-loader] select-toppings.vue: functional components are not supported with templates, they should use render functions.")}
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-00977da8", Component.options)
+  } else {
+    hotAPI.reload("data-v-00977da8", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+/* harmony default export */ __webpack_exports__["a"] = (Component.exports);
+
+
+/***/ }),
+/* 13 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', _vm._l((_vm.choices), function(choice) {
+    return _c('div', [_c('label', {
+      attrs: {
+        "for": "choice.name"
+      }
+    }, [_vm._v(_vm._s(choice.name))]), _vm._v(" "), _c('input', {
+      directives: [{
+        name: "model",
+        rawName: "v-model",
+        value: (_vm.selectedToppings),
+        expression: "selectedToppings"
+      }],
+      attrs: {
+        "type": "checkbox",
+        "id": "choice.id"
+      },
+      domProps: {
+        "value": choice.name,
+        "checked": Array.isArray(_vm.selectedToppings) ? _vm._i(_vm.selectedToppings, choice.name) > -1 : (_vm.selectedToppings)
+      },
+      on: {
+        "__c": function($event) {
+          var $$a = _vm.selectedToppings,
+            $$el = $event.target,
+            $$c = $$el.checked ? (true) : (false);
+          if (Array.isArray($$a)) {
+            var $$v = choice.name,
+              $$i = _vm._i($$a, $$v);
+            if ($$c) {
+              $$i < 0 && (_vm.selectedToppings = $$a.concat($$v))
+            } else {
+              $$i > -1 && (_vm.selectedToppings = $$a.slice(0, $$i).concat($$a.slice($$i + 1)))
+            }
+          } else {
+            _vm.selectedToppings = $$c
+          }
+        }
+      }
+    })])
+  }))
+}
+var staticRenderFns = []
+render._withStripped = true
+var esExports = { render: render, staticRenderFns: staticRenderFns }
+/* harmony default export */ __webpack_exports__["a"] = (esExports);
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+     require("vue-hot-reload-api").rerender("data-v-00977da8", esExports)
+  }
+}
+
+/***/ }),
+/* 14 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', [_c('select', {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: (_vm.selectedType),
+      expression: "selectedType"
+    }],
+    on: {
+      "change": function($event) {
+        var $$selectedVal = Array.prototype.filter.call($event.target.options, function(o) {
+          return o.selected
+        }).map(function(o) {
+          var val = "_value" in o ? o._value : o.value;
+          return val
+        });
+        _vm.selectedType = $event.target.multiple ? $$selectedVal : $$selectedVal[0]
+      }
+    }
+  }, [_c('option', {
+    attrs: {
+      "value": ""
+    }
+  }, [_vm._v(" Select a pizza type ")]), _vm._v(" "), _vm._l((_vm.pizzaTypes), function(type) {
+    return _c('option', {
+      domProps: {
+        "value": type.name
+      }
+    }, [_vm._v(_vm._s(type.name))])
+  })], 2), _vm._v(" "), _c('toppings', {
+    on: {
+      "addTopping": _vm.addTopping,
+      "removeTopping": _vm.removeTopping
+    }
+  }), _vm._v("\n\n  " + _vm._s(_vm.pizza.type) + "\n  "), _vm._l((_vm.pizza.toppings), function(topping) {
+    return _c('div', [_vm._v("\n    " + _vm._s(topping) + "\n  ")])
+  })], 2)
+}
+var staticRenderFns = []
+render._withStripped = true
+var esExports = { render: render, staticRenderFns: staticRenderFns }
+/* harmony default export */ __webpack_exports__["a"] = (esExports);
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+     require("vue-hot-reload-api").rerender("data-v-82e7f92e", esExports)
+  }
+}
+
+/***/ }),
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+exports.default = {
+	install: function install(Vue) {
+		Vue.prototype.$helpers = {
+			arrayDifference: function arrayDifference(arrayA, arrayB) {
+				arrayA.length < arrayB.length && (arrayB = [arrayA, arrayA = arrayB][0]);
+
+				return arrayA.filter(function (x) {
+					return arrayB.indexOf(x) < 0;
+				});
+			}
+		};
+	}
+};
+
+/***/ }),
+/* 16 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+/**
+ * Request data from some fancy api that returns the pizza's
+ */
+exports.default = {
+	getPizzas: function getPizzas() {
+		return [{ id: 1, name: 'Hawai' }, { id: 2, name: 'test2' }, { id: 3, name: 'Test3' }];
+	},
+	getToppings: function getToppings() {
+		return [{ id: 1, name: 'mozzarella' }, { id: 2, name: 'pineapple' }, { id: 3, name: 'olives' }];
+	},
+	getToppingMessages: function getToppingMessages() {
+		return [];
+	}
+};
 
 /***/ })
 /******/ ]);
